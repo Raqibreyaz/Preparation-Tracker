@@ -1,4 +1,4 @@
-export type Status = 'Not Started' | 'In Progress' | 'Done';
+export type Status = "Not Started" | "In Progress" | "Done";
 
 export interface Subtopic {
   id: string;
@@ -26,12 +26,23 @@ export interface TrackerState {
   // CRUD
   addCategory: (name: string) => void;
   addTopic: (categoryId: string, name: string) => void;
-  addSubtopic: (categoryId: string, topicId: string, sub: Omit<Subtopic, 'id'>) => void;
+  addSubtopic: (
+    categoryId: string,
+    topicId: string,
+    sub: Omit<Subtopic, "id">
+  ) => void;
   updateSubtopic: (
     categoryId: string,
     topicId: string,
     subtopicId: string,
     patch: Partial<Subtopic>
+  ) => void;
+  deleteCategory: (categoryId: string) => void;
+  deleteTopic: (categoryId: string, topicId: string) => void;
+  deleteSubtopic: (
+    categoryId: string,
+    topicId: string,
+    subtopicId: string
   ) => void;
   // Import/Export
   importJSON: (data: Category[]) => void;

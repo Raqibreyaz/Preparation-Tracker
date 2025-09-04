@@ -1,22 +1,24 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion } from "@/components/ui/accordion";
-import { Upload, Download } from "lucide-react";
 import { overallStats } from "@/lib/utils";
-import { Status, Category } from "@/lib/types";
+import { Status} from "@/lib/types";
 import { useTracker } from "@/store/useTrackerStore";
 import { AddForm } from "@/components/forms/AddForm";
-import { Header } from "@/components/header/HeaderStats";
 import { CategoryCard } from "@/components/category/CategoryCard";
 import { RevisionTab } from "@/components/tabs/RevisionTab";
 import { StatsSection } from "@/components/header/StatsSection";
+import { ImportExport } from "@/components/import-export/ImportExport";
+import { CategoryExplorer } from "@/components/category/CategoryExplorer";
 
 export default function Page() {
   const categories = useTracker((s) => s.categories);
+
+  console.log(categories);
+
   const stats = overallStats(categories);
 
   // search + filters
@@ -46,8 +48,13 @@ export default function Page() {
   }, [categories, query, statusFilter]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-6">
+        <StatsSection
+          categories={categories}
+          totalDone={stats.done}
+          total={stats.total}
+        />
         {/* <Header
           stats={stats}
           query={query}
@@ -55,11 +62,6 @@ export default function Page() {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
         /> */}
-        <StatsSection
-          categories={categories}
-          totalDone={stats.done}
-          total={stats.total}
-        />
 
         <Card className="mt-6 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -102,53 +104,6 @@ export default function Page() {
           browser (localStorage).
         </footer>
       </div>
-    </div>
-  );
-}
-
-function ImportExport() {
-  const categories = useTracker((s) => s.categories);
-  const importJSON = useTracker((s) => s.importJSON);
-
-  const fileRef = React.useRef<HTMLInputElement>(null);
-
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify(categories, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "placement-tracker.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImport = async (file: File) => {
-    const text = await file.text();
-    const data = JSON.parse(text) as Category[];
-    importJSON(data);
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <input
-        type="file"
-        accept="application/json"
-        ref={fileRef}
-        className="hidden"
-        onChange={(e) => e.target.files && handleImport(e.target.files[0])}
-      />
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => fileRef.current?.click()}
-      >
-        <Upload className="mr-2 h-4 w-4" /> Import
-      </Button>
-      <Button size="sm" onClick={handleExport}>
-        <Download className="mr-2 h-4 w-4" /> Export
-      </Button>
     </div>
   );
 }

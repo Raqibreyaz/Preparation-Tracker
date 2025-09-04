@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { StickyNote } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function NotesDialog({
   initialNotes,
@@ -27,7 +28,12 @@ export function NotesDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm" className="gap-2">
-          <StickyNote className="h-4 w-4" /> Notes
+          <Tooltip>
+            <TooltipTrigger>
+              <StickyNote className="h-4 w-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>Notes</TooltipContent>
+          </Tooltip>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">

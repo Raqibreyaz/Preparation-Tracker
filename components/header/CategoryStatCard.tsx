@@ -14,11 +14,11 @@ export function CategoryStatCard({ name, done, total }: CategoryStatCardProps) {
 
   return (
     <Card className="rounded-2xl shadow-sm p-4 flex flex-col gap-2">
-      <CardContent className="p-0 flex flex-col gap-2">
-        <span className="font-medium">{name}</span>
+      <CardContent className="my-auto p-0 flex flex-col gap-2">
+        <span className="text-xl font-medium dark:text-neutral-100">{name}</span>
         <span className="text-2xl font-bold">{percentage}%</span>
-        <Progress value={percentage} />
-        <span className="text-sm text-muted-foreground">{done}/{total} done</span>
+        <Progress value={percentage} className="[&>div]:bg-orange-500"/>
+        <span className="text-sm text-muted-foreground dark:text-neutral-400">{done}/{total} done</span>
       </CardContent>
     </Card>
   )

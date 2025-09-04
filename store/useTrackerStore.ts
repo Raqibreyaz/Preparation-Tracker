@@ -1,9 +1,29 @@
-import { Category,TrackerState } from "@/lib/types";
+import { Category, TrackerState } from "@/lib/types";
 import { v4 as uuid } from "uuid";
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const initialData: Category[] = [
+  {
+    id: uuid(),
+    name: "DSA",
+    topics: [
+      {
+        id: uuid(),
+        name: "Arrays",
+        subtopics: [
+          {
+            id: uuid(),
+            name: "Binary Search",
+            status: "Done",
+            notes: "",
+            markForRevision: true,
+            importance: 4,
+          },
+        ],
+      },
+    ],
+  },
   {
     id: uuid(),
     name: "Computer Networking",
@@ -46,6 +66,7 @@ const initialData: Category[] = [
       },
     ],
   },
+  { id: uuid(), name: "Operating Systems", topics: [] },
   {
     id: uuid(),
     name: "DBMS",
@@ -157,6 +178,38 @@ export const useTracker = create<TrackerState>()(
                           ...t,
                           subtopics: t.subtopics.map((sub) =>
                             sub.id === subtopicId ? { ...sub, ...patch } : sub
+                          ),
+                        }
+                      : t
+                  ),
+                }
+              : c
+          ),
+        })),
+      deleteCategory: (categoryId) =>
+        set((s) => ({
+          categories: s.categories.filter((c) => c.id !== categoryId),
+        })),
+      deleteTopic: (categoryId, topicId) =>
+        set((s) => ({
+          categories: s.categories.map((c) =>
+            c.id === categoryId
+              ? { ...c, topics: c.topics.filter((t) => t.id !== topicId) }
+              : c
+          ),
+        })),
+      deleteSubtopic: (categoryId, topicId, subtopicId) =>
+        set((s) => ({
+          categories: s.categories.map((c) =>
+            c.id === categoryId
+              ? {
+                  ...c,
+                  topics: c.topics.map((t) =>
+                    t.id === topicId
+                      ? {
+                          ...t,
+                          subtopics: t.subtopics.filter(
+                            (s) => s.id !== subtopicId
                           ),
                         }
                       : t

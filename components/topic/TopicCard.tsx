@@ -116,7 +116,7 @@ export function TopicCard({
 }) {
   const stats = topicStats(topic);
   return (
-    <AccordionItem value={topic.id} className="border rounded-2xl">
+    <AccordionItem value={topic.id} className="rounded-2xl">
       <AccordionTrigger className="px-3 py-2 hover:no-underline">
         <div className="flex w-full items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export function TopicCard({
             </Badge>
           </div>
           <div className="flex items-center gap-3 w-1/2">
-            <Progress value={stats.pct} className="h-2 flex-1" />
+            <Progress value={stats.pct} className="h-2 flex-1 [&>div]:bg-orange-500" />
             <span className="text-xs text-muted-foreground w-10 text-right">
               {stats.pct}%
             </span>

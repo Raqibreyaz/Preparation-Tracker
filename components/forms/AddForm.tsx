@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Status } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -18,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, FolderTree, FileText, Layers } from "lucide-react";
 import { useTracker } from "@/store/useTrackerStore";
 
 export function AddForm() {
@@ -40,7 +42,6 @@ export function AddForm() {
     if (!catId) {
       if (!newCategory.trim()) return;
       addCategory(newCategory.trim());
-      // get the newly created id from store
       const latest = useTracker.getState().categories.at(-1);
       if (!latest) return;
       catId = latest.id;
@@ -64,6 +65,7 @@ export function AddForm() {
       importance: 3,
     });
 
+    // Reset state
     setOpen(false);
     setNewCategory("");
     setTopicName("");
@@ -77,21 +79,36 @@ export function AddForm() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild >
         <Button size="sm" className="gap-2">
           <Plus className="h-4 w-4" /> Quick Add
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+
+      <DialogContent className="sm:max-w-lg rounded-2xl shadow-xl border bg-background">
         <DialogHeader>
-          <DialogTitle>Add (Category → Topic → Subtopic)</DialogTitle>
+          <DialogTitle className="text-lg font-semibold flex items-center gap-2">
+            <Layers className="h-5 w-5 text-primary" /> Add Learning Item
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Fill in step by step: Category → Topic → Subtopic
+          </p>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <form
+          className="space-y-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+        >
           {/* Category */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label>Pick Category</Label>
+              <Label className="flex items-center gap-1">
+                <FolderTree className="h-4 w-4 text-muted-foreground" />
+                Pick Category
+              </Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select existing" />
@@ -116,67 +133,80 @@ export function AddForm() {
           </div>
 
           {/* Topic */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label>Pick Topic</Label>
-              <Select value={topicId} onValueChange={setTopicId}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select existing" />
-                </SelectTrigger>
-                <SelectContent>
-                  {selectedCategory?.topics.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.name}
+          {(categoryId || newCategory.trim()) && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="flex items-center gap-1">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  Pick Topic
+                </Label>
+                <Select value={topicId} onValueChange={setTopicId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select existing" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedCategory?.topics.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Or New Topic</Label>
+                <Input
+                  placeholder="e.g., CPU Scheduling"
+                  value={topicName}
+                  onChange={(e) => setTopicName(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Subtopic */}
+          {(topicId || topicName.trim()) && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label>Subtopic Name</Label>
+                <Input
+                  placeholder="e.g., Round Robin Algorithm"
+                  value={subName}
+                  onChange={(e) => setSubName(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Select
+                  value={status}
+                  onValueChange={(v) => setStatus(v as Status)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Not Started" className="text-red-500">
+                      Not Started
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    <SelectItem value="In Progress" className="text-yellow-500">
+                      In Progress
+                    </SelectItem>
+                    <SelectItem value="Done" className="text-green-500">
+                      Done
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div>
-              <Label>Or New Topic</Label>
-              <Input
-                placeholder="e.g., CPU Scheduling"
-                value={topicName}
-                onChange={(e) => setTopicName(e.target.value)}
-              />
-            </div>
-          </div>
+          )}
 
-          {/* Subtopic & Status */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label>Subtopic Name</Label>
-              <Input
-                placeholder="e.g., Round Robin Algorithm"
-                value={subName}
-                onChange={(e) => setSubName(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Status</Label>
-              <Select
-                value={status}
-                onValueChange={(v) => setStatus(v as Status)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Not Started">Not Started</SelectItem>
-                  <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Done">Done</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSubmit}>Add</Button>
-        </DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" className="mr-2" type="button" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Add</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -15,7 +15,6 @@ import { FolderPlus } from "lucide-react";
 import { TopicCard } from "@/components/topic/TopicCard";
 import CategoryAddTopicButton from "@/components/forms/CategoryForm";
 
-
 export function CategoryCard({ category }: { category: Category }) {
   const stats = categoryStats(category);
   return (
@@ -33,7 +32,10 @@ export function CategoryCard({ category }: { category: Category }) {
             </Badge>
           </div>
           <div className="flex items-center gap-3 w-1/2">
-            <Progress value={stats.pct} className="h-2 flex-1" />
+            <Progress
+              value={stats.pct}
+              className="h-2 flex-1 [&>div]:bg-orange-500"
+            />
             <span className="text-xs text-muted-foreground w-10 text-right">
               {stats.pct}%
             </span>

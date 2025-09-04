@@ -1,7 +1,6 @@
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -10,10 +9,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BookMarked, Star, Settings2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { BookMarked, Star, Settings2, Trash2 } from "lucide-react";
 import { useTracker } from "@/store/useTrackerStore";
 import { Subtopic, Status } from "@/lib/types";
 import { NotesDialog } from "@/components/subtopic/NotesDialog";
+
+const statusColors: Record<Status, string> = {
+  "Not Started": "bg-gray-200 text-gray-800",
+  "In Progress": "bg-blue-100 text-blue-700",
+  Done: "bg-emerald-100 text-emerald-700",
+};
 
 export function SubtopicRow({
   categoryId,
@@ -25,35 +36,38 @@ export function SubtopicRow({
   subtopic: Subtopic;
 }) {
   const update = useTracker((s) => s.updateSubtopic);
-
-  const bg = ""
-    // subtopic.status === "Done"
-    //   ? "bg-emerald-50 border-emerald-200"
-    //   : "bg-white";
+  const deleteSubtopic = useTracker((s) => s.deleteSubtopic);
 
   return (
     <motion.div
-      layout
+      layout="position"
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
-      className={`w-full ${bg} p-3 border shadow-sm`}
+      className="w-full bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border hover:shadow-md transition"
     >
-      <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-3">
-        {/* Name */}
-        <div className="md:col-span-4 flex items-center gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-13 items-center gap-4">
+        {/* Name & Status */}
+        <div className="md:col-span-4 flex items-center gap-3">
           <Badge
-            variant={subtopic.status === "Done" ? "default" : "secondary"}
-            className="rounded-full whitespace-nowrap"
+            // variant={subtopic.status === "Done" ? "default" : "secondary"}
+            className={`rounded-full transition-colors px-3 py-1 text-xs font-medium ${
+              statusColors[subtopic.status]
+            }`}
           >
             {subtopic.status}
           </Badge>
-          <div className="font-medium">{subtopic.name}</div>
+          <div className="font-medium truncate">{subtopic.name}</div>
         </div>
 
         {/* Importance */}
         <div className="md:col-span-2 flex items-center gap-2">
-          <Star className="h-4 w-4" />
+          <Tooltip>
+            <TooltipTrigger>
+              <Star className="h-4 w-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>Importance</TooltipContent>
+          </Tooltip>
           <Select
             value={String(subtopic.importance)}
             onValueChange={(v) =>
@@ -62,8 +76,8 @@ export function SubtopicRow({
               })
             }
           >
-            <SelectTrigger className="w-[110px]">
-              <SelectValue />
+            <SelectTrigger className="w-[90px]">
+              <SelectValue placeholder="Set" />
             </SelectTrigger>
             <SelectContent>
               {[1, 2, 3, 4, 5].map((n) => (
@@ -77,14 +91,19 @@ export function SubtopicRow({
 
         {/* Status */}
         <div className="md:col-span-2 flex items-center gap-2">
-          <Settings2 className="h-4 w-4" />
+          <Tooltip>
+            <TooltipTrigger>
+              <Settings2 className="h-4 w-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>Status</TooltipContent>
+          </Tooltip>
           <Select
             value={subtopic.status}
             onValueChange={(v) =>
               update(categoryId, topicId, subtopic.id, { status: v as Status })
             }
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[130px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -95,12 +114,20 @@ export function SubtopicRow({
           </Select>
         </div>
 
-        {/* Revision toggle */}
-        <div className="md:col-span-2 flex items-center justify-between md:justify-start gap-2">
-          <div className="flex items-center gap-2">
-            <BookMarked className="h-4 w-4" />
-            <Label className="text-sm">Mark for Revision</Label>
-          </div>
+        {/* Revision */}
+        <div className="md:col-span-2 flex items-center justify-center gap-2">
+          <Tooltip>
+            <TooltipTrigger>
+              <BookMarked
+                className={`h-4 w-4 ${
+                  subtopic.markForRevision
+                    ? "text-amber-500"
+                    : "text-muted-foreground"
+                }`}
+              />
+            </TooltipTrigger>
+            <TooltipContent>Mark for Revision</TooltipContent>
+          </Tooltip>
           <Switch
             checked={subtopic.markForRevision}
             onCheckedChange={(checked) =>
@@ -111,14 +138,28 @@ export function SubtopicRow({
           />
         </div>
 
-        {/* Notes button */}
-        <div className="md:col-span-2 flex items-center justify-end md:justify-start">
+        {/* Notes */}
+        <div className=" md:col-span-2 flex items-center justify-end md:justify-center">
           <NotesDialog
             initialNotes={subtopic.notes || ""}
             onSave={(notes) =>
               update(categoryId, topicId, subtopic.id, { notes })
             }
           />
+        </div>
+
+        <div className="">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (confirm("Delete this subtopic?")) {
+                deleteSubtopic(categoryId, topicId, subtopic.id);
+              }
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-red-500" />
+          </Button>
         </div>
       </div>
     </motion.div>
