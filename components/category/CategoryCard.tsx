@@ -11,12 +11,15 @@ import {
 } from "@/components/ui/accordion";
 
 // Icons
-import { FolderPlus } from "lucide-react";
+import { FolderPlus, Trash2 } from "lucide-react";
 import { TopicCard } from "@/components/topic/TopicCard";
 import CategoryAddTopicButton from "@/components/forms/CategoryForm";
+import { Button } from "@/components/ui/button";
+import { useTracker } from "@/store/useTrackerStore";
 
 export function CategoryCard({ category }: { category: Category }) {
   const stats = categoryStats(category);
+  const deleteCategory = useTracker((s) => s.deleteCategory);
   return (
     <AccordionItem
       value={category.id}
@@ -31,7 +34,10 @@ export function CategoryCard({ category }: { category: Category }) {
               {stats.done}/{stats.total}
             </Badge>
           </div>
-          <div className="flex items-center gap-3 w-1/2">
+          <div
+            className="relative flex items-center gap-3 w-1/2"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Progress
               value={stats.pct}
               className="h-2 flex-1 [&>div]:bg-orange-500"
@@ -40,6 +46,17 @@ export function CategoryCard({ category }: { category: Category }) {
               {stats.pct}%
             </span>
             <CategoryAddTopicButton categoryId={category.id} />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (confirm("Delete this category?")) {
+                  deleteCategory(category.id);
+                }
+              }}
+            >
+              <Trash2 className="size-5 text-red-500" />
+            </Button>
           </div>
         </div>
       </AccordionTrigger>

@@ -26,7 +26,6 @@ export function StatsSection({
     [categories]
   );
 
-  console.log(summarizedCategories);
 
   return (
     <div className="flex gap-4">
@@ -34,7 +33,7 @@ export function StatsSection({
       <TotalProgressCard done={totalDone} total={total} />
       {/* Grid of categories */}
 
-      <div className="grid w-full grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 md:gap-4 gap-2">
+      <div className="grid w-full grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 md:gap-4 gap-2">
         {summarizedCategories.map((c) => (
           <CategoryStatCard
             key={c.id}

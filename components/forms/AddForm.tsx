@@ -79,7 +79,7 @@ export function AddForm() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild >
+      <DialogTrigger asChild>
         <Button size="sm" className="gap-2">
           <Plus className="h-4 w-4" /> Quick Add
         </Button>
@@ -109,7 +109,11 @@ export function AddForm() {
                 <FolderTree className="h-4 w-4 text-muted-foreground" />
                 Pick Category
               </Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
+              <Select
+                value={categoryId}
+                disabled={categories.length === 0}
+                onValueChange={setCategoryId}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select existing" />
                 </SelectTrigger>
@@ -140,7 +144,13 @@ export function AddForm() {
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   Pick Topic
                 </Label>
-                <Select value={topicId} onValueChange={setTopicId}>
+                <Select
+                  value={topicId}
+                  disabled={
+                    !selectedCategory || selectedCategory?.topics.length === 0
+                  }
+                  onValueChange={setTopicId}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select existing" />
                   </SelectTrigger>
@@ -201,7 +211,12 @@ export function AddForm() {
           )}
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" className="mr-2" type="button" onClick={() => setOpen(false)}>
+            <Button
+              variant="outline"
+              className="mr-2"
+              type="button"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit">Add</Button>

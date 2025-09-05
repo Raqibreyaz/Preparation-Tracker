@@ -121,13 +121,21 @@
   }
 }
 
-@layer base {
+/* @layer base {
   html {
     scrollbar-gutter: stable;
   }
+} */
+
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
 }
 
-/* html {
-  overflow-y: scroll;
-} */
+/* Prevent Radix scroll-lock from shifting layout */
+body[data-scroll-locked] {
+  overflow: visible !important;
+  padding-right: 0 !important;
+}
+
 

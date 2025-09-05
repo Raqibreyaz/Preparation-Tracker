@@ -1,51 +1,62 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion } from "@/components/ui/accordion";
-import { overallStats } from "@/lib/utils";
-import { Status} from "@/lib/types";
+import { getFilteredData, overallStats } from "@/lib/utils";
+import { Status } from "@/lib/types";
 import { useTracker } from "@/store/useTrackerStore";
 import { AddForm } from "@/components/forms/AddForm";
 import { CategoryCard } from "@/components/category/CategoryCard";
 import { RevisionTab } from "@/components/tabs/RevisionTab";
 import { StatsSection } from "@/components/header/StatsSection";
+import { Filter } from "@/components/filter/Filter";
 import { ImportExport } from "@/components/import-export/ImportExport";
-import { CategoryExplorer } from "@/components/category/CategoryExplorer";
+import { useDebounce } from "use-debounce";
 
 export default function Page() {
   const categories = useTracker((s) => s.categories);
 
-  console.log(categories);
-
-  const stats = overallStats(categories);
-
-  // search + filters
+  // 🔹 State for filters
   const [query, setQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<"All" | Status>("All");
+  const [importanceFilter, setImportanceFilter] = React.useState<
+    "All" | 1 | 2 | 3 | 4 | 5
+  >("All");
+  const [revisionOnly, setRevisionOnly] = React.useState(false);
 
-  const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return categories.map((c) => ({
-      ...c,
-      topics: c.topics
-        .map((t) => ({
-          ...t,
-          subtopics: t.subtopics.filter((s) => {
-            const textMatch =
-              c.name.toLowerCase().includes(q) ||
-              t.name.toLowerCase().includes(q) ||
-              s.name.toLowerCase().includes(q) ||
-              (s.notes || "").toLowerCase().includes(q);
-            const statusMatch =
-              statusFilter === "All" ? true : s.status === statusFilter;
-            return (!q || textMatch) && statusMatch;
-          }),
-        }))
-        .filter((t) => t.subtopics.length > 0 || q === ""),
-    }));
-  }, [categories, query, statusFilter]);
+  // 🔹 Debounced versions of filters (300ms delay)
+  const [debouncedQuery] = useDebounce(query, 300);
+
+  // 🔹 Reset filters
+  const resetFilters = () => {
+    setQuery("");
+    setStatusFilter("All");
+    setImportanceFilter("All");
+    setRevisionOnly(false);
+  };
+
+  // 🔹 Apply filters with debounced values
+  const filtered = useMemo(
+    () =>
+      getFilteredData(
+        categories,
+        debouncedQuery,
+        statusFilter,
+        importanceFilter,
+        revisionOnly
+      ),
+    [
+      categories,
+      debouncedQuery,
+      statusFilter,
+      importanceFilter,
+      revisionOnly,
+    ]
+  );
+
+  const stats = useMemo(() => overallStats(categories), [categories]);
 
   return (
     <div className="min-h-screen">
@@ -55,13 +66,18 @@ export default function Page() {
           totalDone={stats.done}
           total={stats.total}
         />
-        {/* <Header
-          stats={stats}
+
+        <Filter
           query={query}
           setQuery={setQuery}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-        /> */}
+          importanceFilter={importanceFilter}
+          resetFilters={resetFilters}
+          revisionOnly={revisionOnly}
+          setImportanceFilter={setImportanceFilter}
+          setRevisionOnly={setRevisionOnly}
+        />
 
         <Card className="mt-6 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -91,7 +107,7 @@ export default function Page() {
               <TabsContent value="revision" className="mt-4">
                 <RevisionTab
                   categories={categories}
-                  query={query}
+                  query={debouncedQuery}
                   statusFilter={statusFilter}
                 />
               </TabsContent>

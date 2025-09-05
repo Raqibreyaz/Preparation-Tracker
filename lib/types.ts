@@ -1,5 +1,7 @@
 export type Status = "Not Started" | "In Progress" | "Done";
 
+export type Importance = 1 | 2 | 3 | 4 | 5
+
 export interface Subtopic {
   id: string;
   name: string;

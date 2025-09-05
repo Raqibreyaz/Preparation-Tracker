@@ -3,21 +3,15 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { BookMarked, Star, Settings2, Trash2 } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { BookMarked, Star, Settings2, Trash2, ChevronDown } from "lucide-react";
 import { useTracker } from "@/store/useTrackerStore";
-import { Subtopic, Status } from "@/lib/types";
+import { Subtopic, Status, Importance } from "@/lib/types";
 import { NotesDialog } from "@/components/subtopic/NotesDialog";
 
 const statusColors: Record<Status, string> = {
@@ -50,7 +44,6 @@ export function SubtopicRow({
         {/* Name & Status */}
         <div className="md:col-span-4 flex items-center gap-3">
           <Badge
-            // variant={subtopic.status === "Done" ? "default" : "secondary"}
             className={`rounded-full transition-colors px-3 py-1 text-xs font-medium ${
               statusColors[subtopic.status]
             }`}
@@ -68,25 +61,31 @@ export function SubtopicRow({
             </TooltipTrigger>
             <TooltipContent>Importance</TooltipContent>
           </Tooltip>
-          <Select
-            value={String(subtopic.importance)}
-            onValueChange={(v) =>
-              update(categoryId, topicId, subtopic.id, {
-                importance: Number(v) as any,
-              })
-            }
-          >
-            <SelectTrigger className="w-[90px]">
-              <SelectValue placeholder="Set" />
-            </SelectTrigger>
-            <SelectContent>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[90px] justify-between">
+                {subtopic.importance}
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[120px] p-1">
               {[1, 2, 3, 4, 5].map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
+                <Button
+                  key={n}
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    update(categoryId, topicId, subtopic.id, {
+                      importance: n as Importance,
+                    })
+                  }
+                >
+                  {"⭐".repeat(n)}
+                </Button>
               ))}
-            </SelectContent>
-          </Select>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Status */}
@@ -97,21 +96,31 @@ export function SubtopicRow({
             </TooltipTrigger>
             <TooltipContent>Status</TooltipContent>
           </Tooltip>
-          <Select
-            value={subtopic.status}
-            onValueChange={(v) =>
-              update(categoryId, topicId, subtopic.id, { status: v as Status })
-            }
-          >
-            <SelectTrigger className="w-[130px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Not Started">Not Started</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
-              <SelectItem value="Done">Done</SelectItem>
-            </SelectContent>
-          </Select>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[130px] justify-between">
+                {subtopic.status}
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[150px] p-1 space-y-1">
+              {["Not Started", "In Progress", "Done"].map((status) => (
+                <Button
+                  key={status}
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    update(categoryId, topicId, subtopic.id, {
+                      status: status as Status,
+                    })
+                  }
+                >
+                  {status}
+                </Button>
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Revision */}
@@ -139,7 +148,7 @@ export function SubtopicRow({
         </div>
 
         {/* Notes */}
-        <div className=" md:col-span-2 flex items-center justify-end md:justify-center">
+        <div className="md:col-span-2 flex items-center justify-end md:justify-center">
           <NotesDialog
             initialNotes={subtopic.notes || ""}
             onSave={(notes) =>
@@ -148,7 +157,8 @@ export function SubtopicRow({
           />
         </div>
 
-        <div className="">
+        {/* Delete */}
+        <div>
           <Button
             variant="ghost"
             size="icon"
@@ -158,7 +168,7 @@ export function SubtopicRow({
               }
             }}
           >
-            <Trash2 className="h-4 w-4 text-red-500" />
+            <Trash2 className="size-4 text-red-500" />
           </Button>
         </div>
       </div>
