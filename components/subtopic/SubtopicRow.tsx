@@ -8,7 +8,11 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { BookMarked, Star, Settings2, Trash2, ChevronDown } from "lucide-react";
 import { useTracker } from "@/store/useTrackerStore";
 import { Subtopic, Status, Importance } from "@/lib/types";
@@ -50,7 +54,9 @@ export function SubtopicRow({
           >
             {subtopic.status}
           </Badge>
-          <div className="font-medium truncate">{subtopic.name}</div>
+          <div className="font-medium truncate cursor-default" title={subtopic.name}>
+            {subtopic.name}
+          </div>
         </div>
 
         {/* Importance */}
