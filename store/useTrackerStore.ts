@@ -218,6 +218,18 @@ export const useTracker = create<TrackerState>()(
               : c
           ),
         })),
+      getSubtopic: (categoryId, topicId, subtopicId) => {
+          const category = get().categories.find(cat => cat.id === categoryId);
+          if (!category) return null;
+
+          // find the topic
+          const topic = category.topics.find(t => t.id === topicId);
+          if (!topic) return null;
+
+          // find the subtopic
+          const subtopic = topic.subtopics.find(st => st.id === subtopicId);
+          return subtopic || null;
+      },
       importJSON: (data) => set({ categories: data }),
       clearAll: () => set({ categories: [] }),
     }),

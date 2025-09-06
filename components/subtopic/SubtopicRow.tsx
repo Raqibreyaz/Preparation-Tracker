@@ -17,10 +17,12 @@ import { BookMarked, Star, Settings2, Trash2, ChevronDown } from "lucide-react";
 import { useTracker } from "@/store/useTrackerStore";
 import { Subtopic, Status, Importance } from "@/lib/types";
 import { NotesDialog } from "@/components/subtopic/NotesDialog";
+import Link from "next/link";
+import { EditSubtopicForm } from "../forms/EditSubtopicForm";
 
 const statusColors: Record<Status, string> = {
-  "Not Started": "bg-gray-200 text-gray-800",
-  "In Progress": "bg-blue-100 text-blue-700",
+  "Not Started": "bg-rose-200 text-gray-800",
+  "In Progress": "bg-blue-200 text-blue-800",
   Done: "bg-emerald-100 text-emerald-700",
 };
 
@@ -44,18 +46,26 @@ export function SubtopicRow({
       exit={{ opacity: 0, y: -6 }}
       className="w-full bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border hover:shadow-md transition"
     >
-      <div className="grid grid-cols-1 md:grid-cols-13 items-center gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-13 items-center gap-5">
         {/* Name & Status */}
-        <div className="md:col-span-4 flex items-center gap-3">
+        <div className="md:col-span-4 flex items-center gap-2">
           <Badge
-            className={`rounded-full transition-colors px-3 py-1 text-xs font-medium ${
+            className={`rounded-full transition-colors px-2 py-0.5 text-xs font-medium ${
               statusColors[subtopic.status]
             }`}
           >
             {subtopic.status}
           </Badge>
-          <div className="font-medium truncate cursor-default" title={subtopic.name}>
-            {subtopic.name}
+          <div
+            className="font-medium truncate cursor-default"
+            title={subtopic.name}
+          >
+            {subtopic.link && (
+              <Link target="blank" href={subtopic.link ?? ""}>
+                {subtopic.name}
+              </Link>
+            )}
+            {!subtopic.link && subtopic.name}
           </div>
         </div>
 
@@ -130,7 +140,7 @@ export function SubtopicRow({
         </div>
 
         {/* Revision */}
-        <div className="md:col-span-2 flex items-center justify-center gap-2">
+        <div className="md:col-span-2 flex items-center justify-end gap-2">
           <Tooltip>
             <TooltipTrigger>
               <BookMarked
@@ -163,19 +173,29 @@ export function SubtopicRow({
           />
         </div>
 
-        {/* Delete */}
-        <div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              if (confirm("Delete this subtopic?")) {
-                deleteSubtopic(categoryId, topicId, subtopic.id);
-              }
-            }}
-          >
-            <Trash2 className="size-4 text-red-500" />
-          </Button>
+        <div className="flex items-center">
+          <div>
+            <EditSubtopicForm
+              categoryId={categoryId}
+              topicId={topicId}
+              subtopic={subtopic}
+            />
+          </div>
+
+          {/* Delete */}
+          <div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (confirm("Delete this subtopic?")) {
+                  deleteSubtopic(categoryId, topicId, subtopic.id);
+                }
+              }}
+            >
+              <Trash2 className="size-4 text-red-500" />
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>

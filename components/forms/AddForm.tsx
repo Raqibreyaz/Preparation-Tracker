@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Status } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,7 @@ export function AddForm() {
   const [topicId, setTopicId] = React.useState<string>("");
   const [topicName, setTopicName] = React.useState("");
   const [subName, setSubName] = React.useState("");
+  const [subLink, setSubLink] = React.useState<string | undefined>(undefined);
   const [status, setStatus] = React.useState<Status>("Not Started");
 
   const onSubmit = () => {
@@ -63,22 +64,27 @@ export function AddForm() {
       notes: "",
       markForRevision: false,
       importance: 3,
+      link: subLink,
     });
 
     // Reset state
-    setOpen(false);
     setNewCategory("");
     setTopicName("");
     setSubName("");
+    setSubLink(undefined);
     setCategoryId("");
     setTopicId("");
     setStatus("Not Started");
+    setOpen(false);
   };
 
-  const selectedCategory = categories.find((c) => c.id === categoryId);
+  const selectedCategory = useMemo(
+    () => categories.find((c) => c.id === categoryId),
+    [categoryId, categories]
+  );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal={false}>
       <DialogTrigger asChild>
         <Button size="sm" className="gap-2">
           <Plus className="h-4 w-4" /> Quick Add
@@ -176,13 +182,21 @@ export function AddForm() {
 
           {/* Subtopic */}
           {(topicId || topicName.trim()) && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <div>
                 <Label>Subtopic Name</Label>
                 <Input
                   placeholder="e.g., Round Robin Algorithm"
                   value={subName}
                   onChange={(e) => setSubName(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Link</Label>
+                <Input
+                  value={subLink}
+                  onChange={(e) => setSubLink(e.target.value)}
+                  placeholder="e.g., Link to Resource"
                 />
               </div>
               <div>

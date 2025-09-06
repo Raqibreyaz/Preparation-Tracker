@@ -1,10 +1,11 @@
 export type Status = "Not Started" | "In Progress" | "Done";
 
-export type Importance = 1 | 2 | 3 | 4 | 5
+export type Importance = 1 | 2 | 3 | 4 | 5;
 
 export interface Subtopic {
   id: string;
   name: string;
+  link?: string;
   status: Status;
   notes?: string;
   markForRevision: boolean;
@@ -46,6 +47,11 @@ export interface TrackerState {
     topicId: string,
     subtopicId: string
   ) => void;
+  getSubtopic: (
+    categoryId: string,
+    topicId: string,
+    subtopicId: string
+  ) => Subtopic | null;
   // Import/Export
   importJSON: (data: Category[]) => void;
   clearAll: () => void;
